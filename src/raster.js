@@ -11,6 +11,7 @@ const Raster = (props) => {
     display = true,
     opacity = 1,
     clim,
+    source,
     colormap,
     index = 0,
     regionOptions = {},
@@ -45,8 +46,9 @@ const Raster = (props) => {
       regionOptions.setData({ value: data })
     }
   }
-
   useEffect(() => {
+    console.log("Loading tiles in maps/src/raster.js" + source)
+
     tiles.current = createTiles(regl, {
       ...props,
       setLoading,
@@ -59,6 +61,22 @@ const Raster = (props) => {
       },
     })
   }, [])
+
+  useEffect(() => {
+    console.log("Source changed tiles in maps/src/raster.js! " + source)
+    tiles.current = createTiles(regl, {
+      source,
+      ...props,
+      setLoading,
+      clearLoading,
+      invalidate: () => {
+        map.triggerRepaint()
+      },
+      invalidateRegion: () => {
+        setRegionDataInvalidated(new Date().getTime())
+      },
+    })
+  }, [source])
 
   useEffect(() => {
     if (props.setLoading) {
